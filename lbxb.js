@@ -27,7 +27,6 @@
 
 ******************************************/
 
-
 // env.js 全局
 const $ = new Env("立白小白白会员俱乐部");
 const ckName = "lbxb_data";
@@ -47,7 +46,7 @@ $.barkKey = ($.isNode() ? process.env["bark_key"] : $.getdata("bark_key")) || ''
 
 //脚本入口函数main()
 async function main() {
-    await getNotice()
+    await getNotice();
     console.log('\n============= 用户CK有效性验证 =============\n');
     let taskall = [];
     for (let user of userList) {
@@ -115,7 +114,7 @@ class UserInfo {
                 headers: this.headers,
             };
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             if (result?.code == 200) {
                 //obj.error是0代表完成
                 DoubleLog(`✅签到成功！${result?.data?.resultDesc}`);
@@ -138,7 +137,7 @@ class UserInfo {
                 body:{"postId":"422292","comment":{"content":"立白大品牌一直在用，推荐给大家。希望立白越来越好，走出国门"},"imgArr":[]}
             }
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             console.log(result)
             if (result?.code == 200) {
                 console.log(`✅评论成功！`);
@@ -160,9 +159,10 @@ class UserInfo {
                 headers: {
                     "Cookie":this.cookie
                 },
+                body: '{}'
             }
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             console.log(result);
             let data=result?.data;
             switch (data.titles) {
@@ -192,9 +192,10 @@ class UserInfo {
                 headers: {
                     "Cookie":this.cookie
                 },
+                body: '{}'
             }
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             if(result?.status){
                 DoubleLog(`✅答题情况：${result?.status}`)
             }else{
@@ -230,7 +231,7 @@ class UserInfo {
 }
             };
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             if (result?.code == 200) {
                 console.log(result)
                 DoubleLog(`✅${options.body.title}:领取奖励成功!`);
@@ -268,7 +269,7 @@ class UserInfo {
                 }
             };
             //post方法
-            let result = await httpRequest(options,"post");
+            let result = await httpRequest(options,'post');
             if (result?.code == 200) {
                 console.log(result)
                 DoubleLog(`✅${options.body.title}:领取奖励成功!`);
@@ -290,7 +291,7 @@ class UserInfo {
             body: '{ }'
         };
         //post方法
-        let result = await httpRequest(signinRequest,"post");
+        let result = await httpRequest(signinRequest);
         DoubleLog(`✅目前积分为:${result?.data?.integral}积分`);
     }
 
@@ -304,29 +305,13 @@ class UserInfo {
             body: '{ }'
         };
         //post方法
-        let result = await httpRequest(signinRequest,"post");
-
+        let result = await httpRequest(signinRequest);
         if (result?.code == '500') {
             //obj.error是0代表完成
             this.ckStatus = false;
             console.log(`❌账号${this.index} >> check ck error!`)
         } else {
             console.log(`✅check success!`)
-        }
-    }
-
-}
-
-
-//获取Cookie
-async function getCookie() {
-    if ($request && $request.method != 'OPTIONS') {
-        const tokenValue = $request.headers['Qm-User-Token'] || $.request.headers['qm-user-token'] || $.request.headers['QM-USER-TOKEN'];
-        if (tokenValue) {
-            $.setdata(tokenValue,ckName);
-            $.msg($.name, "", "获取签到Cookie成功🎉");
-        } else {
-            $.msg($.name, "", "错误获取签到Cookie失败");
         }
     }
 }
@@ -349,6 +334,21 @@ async function getNotice() {
         console.log(e);
     }
 } 
+
+//获取Cookie
+async function getCookie() {
+    if ($request && $request.method != 'OPTIONS') {
+        const bodyValue = $request.body;
+        const tokenValue = $request.headers['Qm-User-Token'] || $.request.headers['qm-user-token'] || $.request.headers['QM-USER-TOKEN'];
+        if (bodyValue && tokenValue) {
+            $.setdata(tokenValue, env_token);
+            $.setjson(bodyValue, env_body)
+            $.msg($.name, "", "获取签到Cookie成功🎉");
+        } else {
+            $.msg($.name, "", "错误获取签到Cookie失败");
+        }
+    }
+}
 
 //主程序执行入口
 !(async () => {
