@@ -139,6 +139,10 @@ class UserInfo {
                     "X-wxde54fd27cb59db51-Token":this.token,
                     "unionId":this.userId,
                     "platformCode":"XiaoBaiBai",
+                                        "Accept-Encoding":"gzip,compress,br,deflate",
+                    "User-Agent":"Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.34(0x18002234) NetType/WIFI Language/zh_CN",
+                    "Referer":"https://servicewechat.com/wxde54fd27cb59db51/32/page-frame.html",
+                    "Host":"clubwx.hm.liby.com.cn"
                 },
                 body: {"postId":"422292","comment":{"content":"立白大品牌一直在用，推荐给大家。希望立白越来越好，走出国门"},"imgArr":[]}
             }
@@ -224,6 +228,10 @@ class UserInfo {
                     "X-wxde54fd27cb59db51-Token":this.token,
                     "unionId":this.userId,
                     "platformCode":"XiaoBaiBai",
+                    "Accept-Encoding":"gzip,compress,br,deflate",
+                    "User-Agent":"Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.34(0x18002234) NetType/WIFI Language/zh_CN",
+                    "Referer":"https://servicewechat.com/wxde54fd27cb59db51/32/page-frame.html",
+                    "Host":"clubwx.hm.liby.com.cn"
                 },
                 body: {
                   "rewardType" : 0,
@@ -268,6 +276,10 @@ class UserInfo {
                     "X-wxde54fd27cb59db51-Token":this.token,
                     "unionId":this.userId,
                     "platformCode":"XiaoBaiBai",
+                    "Accept-Encoding":"gzip,compress,br,deflate",
+                    "User-Agent":"Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.34(0x18002234) NetType/WIFI Language/zh_CN",
+                    "Referer":"https://servicewechat.com/wxde54fd27cb59db51/32/page-frame.html",
+                    "Host":"clubwx.hm.liby.com.cn"
                 },
                 body: {
                   "rewardType" : 0,
