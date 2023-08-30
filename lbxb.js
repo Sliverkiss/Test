@@ -114,7 +114,7 @@ class UserInfo {
                 headers: this.headers,
             };
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             if (result?.code == 200) {
                 //obj.error是0代表完成
                 DoubleLog(`✅签到成功！${result?.data?.resultDesc}`);
@@ -133,11 +133,17 @@ class UserInfo {
                 //签到任务调用签到接口
                 url: `https://clubwx.hm.liby.com.cn/b2cMiniApi/comment/savePostComment.htm`,
                 //请求头, 所有接口通用
-                headers: this.headers,
-                body:{"postId":"422292","comment":{"content":"立白大品牌一直在用，推荐给大家。希望立白越来越好，走出国门"},"imgArr":[]}
+                headers: {
+                    "Content-Type":"application/json",
+                    "appId":"wxde54fd27cb59db51",
+                    "X-wxde54fd27cb59db51-Token":this.token,
+                    "unionId":this.userId,
+                    "platformCode":"XiaoBaiBai",
+                },
+                body: {"postId":"422292","comment":{"content":"立白大品牌一直在用，推荐给大家。希望立白越来越好，走出国门"},"imgArr":[]}
             }
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             console.log(result)
             if (result?.code == 200) {
                 console.log(`✅评论成功！`);
@@ -162,7 +168,7 @@ class UserInfo {
                 body: '{}'
             }
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             console.log(result);
             let data=result?.data;
             switch (data.titles) {
@@ -195,7 +201,7 @@ class UserInfo {
                 body: '{}'
             }
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             if(result?.status){
                 DoubleLog(`✅答题情况：${result?.status}`)
             }else{
@@ -212,8 +218,14 @@ class UserInfo {
                 //签到任务调用签到接口
                 url: `https://clubwx.hm.liby.com.cn/b2cMiniApi/task/getTaskReward.htm`,
                 //请求头, 所有接口通用
-                headers: this.headers,
-                body:{
+                headers: {
+                    "Content-Type":"application/json",
+                    "appId":"wxde54fd27cb59db51",
+                    "X-wxde54fd27cb59db51-Token":this.token,
+                    "unionId":this.userId,
+                    "platformCode":"XiaoBaiBai",
+                },
+                body: {
                   "rewardType" : 0,
                   "integral" : "2",
                   "title" : "评论文章",
@@ -228,10 +240,10 @@ class UserInfo {
                   "isComplete" : 1,
                   "suitableScope" : 0,
                   "showCase" : "0,1"
-}
+                }
             };
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             if (result?.code == 200) {
                 console.log(result)
                 DoubleLog(`✅${options.body.title}:领取奖励成功!`);
@@ -250,8 +262,14 @@ class UserInfo {
                 //签到任务调用签到接口
                 url: `https://clubwx.hm.liby.com.cn/b2cMiniApi/task/getTaskReward.htm`,
                 //请求头, 所有接口通用
-                headers: this.headers,
-                body:{
+                headers: {
+                    "Content-Type":"application/json",
+                    "appId":"wxde54fd27cb59db51",
+                    "X-wxde54fd27cb59db51-Token":this.token,
+                    "unionId":this.userId,
+                    "platformCode":"XiaoBaiBai",
+                },
+                body: {
                   "rewardType" : 0,
                   "integral" : "9",
                   "title" : "看好戏 每天送积分",
@@ -269,7 +287,7 @@ class UserInfo {
                 }
             };
             //post方法
-            let result = await httpRequest(options,'post');
+            let result = await httpRequest(options);
             if (result?.code == 200) {
                 console.log(result)
                 DoubleLog(`✅${options.body.title}:领取奖励成功!`);
