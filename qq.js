@@ -10,14 +10,6 @@
 
 使用教程：
 
-青龙：
-1.将账号密码用#连接，如username#password，填写到yuchen_data，多账号用@分割
-2.如遇报错，请检查账号密码是否正确。
-
-Loon：
-1.打开boxjs->我的->数据查看器->在数据键输入yuchen_data->VIEW，将账号密码用#连接，如username#password，填写到数据内容，点击保存,多账号用@分割;
-2.如遇报错，请检查账号密码是否正确。
-
 
 
 ====================================
@@ -53,6 +45,7 @@ $.barkKey = ($.isNode() ? process.env["bark_key"] : $.getdata("bark_key")) || ''
 
 //脚本入口函数main()
 async function main() {
+    await getNotice();
     console.log('\n============= 用户CK有效性验证 =============\n');
     let taskall = [];
     for (let user of userList) {
@@ -107,11 +100,7 @@ class UserInfo {
                 url: `https://vip.qiaqiafood.com/vip/member/sign`,
                 //请求头, 所有接口通用
                 headers:this.headers,
-                body:{
-                    "channel" : "",
-                    "uid" : this.uid,
-                    "tenantId" : "1"
-                }
+                body:`{"channel" : "","uid" :${this.uid},"tenantId" : "1"}`
             };
             //post方法
             let result = await httpRequest(options);
@@ -145,11 +134,7 @@ class UserInfo {
                 url: `https://vip.qiaqiafood.com/activity/lottery/user/finishViewPage`,
                 //请求头, 所有接口通用
                 headers:this.headers,
-                body:{
-                    "activityId" : "1692105351703633921",
-                    "uid" : this.uid,
-                    "tenantId" : "1"
-                }
+                body:`{"activityId" : "1692105351703633921","uid" : ${this.uid},"tenantId" : "1"}`
             };
             //post方法
             let result = await httpRequest(options);
@@ -170,12 +155,7 @@ class UserInfo {
                 url: `https://vip.qiaqiafood.com/activity/lottery/user/drawLottery`,
                 //请求头, 所有接口通用
                 headers:this.headers,
-                body:{
-                    "activityId" : "1692105351703633921",
-                    "uid" : this.uid,
-                    "tenantId" : "1",
-                    "channel":"vip_home"
-                }
+                body:`{"activityId" : "1692105351703633921","uid" : ${this.uid},"tenantId" : "1","channel":"vip_home"}`
             };
             //post方法
             let result = await httpRequest(options);
@@ -198,10 +178,7 @@ class UserInfo {
                 url: `https://vip.qiaqiafood.com/vip/member/getVipExtInfo`,
                 //请求头, 所有接口通用
                 headers:this.headers,
-                body:{
-                    "uid" : this.uid,
-                    "tenantId" : "1",
-                }
+                body:`{"uid" : ${this.uid},"tenantId" : "1",}`
             };
             //post方法
             let result = await httpRequest(options);
@@ -223,11 +200,7 @@ class UserInfo {
                 url: `https://vip.qiaqiafood.com/vip/member/getVipExtInfo`,
                 //请求头, 所有接口通用
                 headers:this.headers,
-                
-                body:{
-                    "uid" : this.uid,
-                    "tenantId" : "1",
-                }
+                body:`{"uid" : ${this.uid},"tenantId" : "1"}`
             };
             //post方法
             let result = await httpRequest(options);
