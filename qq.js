@@ -53,7 +53,6 @@ $.barkKey = ($.isNode() ? process.env["bark_key"] : $.getdata("bark_key")) || ''
 
 //脚本入口函数main()
 async function main() {
-    await getNotice();
     console.log('\n============= 用户CK有效性验证 =============\n');
     let taskall = [];
     for (let user of userList) {
