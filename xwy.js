@@ -100,7 +100,8 @@ class UserInfo {
         this.ckStatus = true
         this.headers = {
             'Authorization': this.token,
-            'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.39(0x18002732) NetType/WIFI Language/zh_CN'
+            'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.39(0x18002732) NetType/WIFI Language/zh_CN',
+            'Content-Type': 'application/json;charset=utf8',
         }
     }
     getRandomTime() {
@@ -113,15 +114,19 @@ class UserInfo {
                 //签到任务调用签到接口
                 url: `https://xwyapi.newhope.cn/customer/score/pointsIssuance`,
                 //请求头, 所有接口通用
-                headers: this.headers,
+                headers: {
+                    'Authorization': this.token,
+                    'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.39(0x18002732) NetType/WIFI Language/zh_CN',
+                    'Content-Type': 'application/json;charset=utf8',
+                },
                 body: `{"action":"fixedSignIn"}`
             };
             //post方法
             let result = await httpRequest(options);
-            if (result?.code == '0001') {
+            if (result?.code == '0000') {
                 //obj.error是0代表完成
-                if(result?.status==1){
-                    DoubleLog(`【签到结果】：签到成功！获得${result?.integral}`);   
+                if(result?.body?.ifSignIn==0){
+                    DoubleLog(`【签到结果】：签到成功！获得${result?.integral}积分`);   
                 }else {
                     DoubleLog(`【签到结果】：今日已签到`)
                 }
