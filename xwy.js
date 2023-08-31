@@ -1,8 +1,8 @@
 /**************************************
 
-脚本名称：微信小程序 希望云社区 积分兑换实物
+脚本名称：微信小程序 沪上阿姨 签到
 脚本作者：@Sliverkiss
-更新日期：2023.08.01 16:40:11
+更新日期：2023.08.28 16:40:11
 
 脚本兼容：Surge、QuantumultX、Loon、Shadowrocket、Node.js
 只测试过loon和青龙，其它环境请自行尝试
@@ -12,19 +12,19 @@
 *************************
 
 青龙：
-1.登录后抓包 域名下的xwyapi.newhope.cn和customerId，用#连接，填写到xwy_data,多账号用 @ 分割
+1.登录后抓包 webapi.qmai.cn域名下的Qm-User-Token，填写到hsay_data,多账号用 @ 分割
 2.可选推送：将bark的key填写到bark_key，不填默认使用青龙自带的推送
 
 Loon: 
 1.将获取Cookie脚本保存到本地
-2.打开小程序->我的->积分，若提示获取Cookie成功则可以使用该脚本
+2.打开小程序->我的，若提示获取Cookie成功则可以使用该脚本
 3.关闭获取ck脚本，避免产生不必要的mitm。
 
 [Script]
-cron "0 20 * * *" script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/xwy.js, timeout=300, tag=希望云社区
-http-request ^https:\/\/xwyapi.newhope.cn\/customer\/score\/detailUser\?customerId=.+ script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/xwy.js, timeout=10, tag=希望云社区获取token
+cron "30 9 * * *" script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/hsay.js, timeout=300, tag=沪上阿姨
+http-request ^https:\/\/webapi.qmai.cn\/web\/catering\/crm\/points-info script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/hsay.js, timeout=10, tag=沪上阿姨获取token
 [MITM]
-hostname =xwyapi.newhope.cn
+hostname =webapi.qmai.cn
 
 
 ------------------------------------------
@@ -41,8 +41,8 @@ hostname =xwyapi.newhope.cn
 
 
 // env.js 全局
-const $ = new Env("希望云社区");
-const ckName = "xwy_data";
+const $ = new Env("雀巢会员俱乐部");
+const ckName = "qc_data";
 //-------------------- 一般不动变量区域 -------------------------------------
 const Notify = 1;//0为关闭通知,1为打开通知,默认为1
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -78,8 +78,6 @@ async function main() {
             console.log(`随机延迟${user.getRandomTime()}ms`);
             taskall.push(await user.signin());
             await $.wait(user.getRandomTime());
-            taskall.push(await user.findTurntableTitle());
-            await $.wait(user.getRandomTime());
             taskall.push(await user.point());
             await $.wait(user.getRandomTime());
         } else {
@@ -93,15 +91,11 @@ async function main() {
 class UserInfo {
     constructor(str) {
         this.index = ++userIdx;
-        this.token = str;
-        let ck = str.split('#')
-        this.token = ck[0];
-        this.customerId=ck[1];
+        this.token = str; 
         this.ckStatus = true
         this.headers = {
             'Authorization': this.token,
-            'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.39(0x18002732) NetType/WIFI Language/zh_CN',
-            'Content-Type': 'application/json;charset=utf8',
+            'Content-Type': 'application/json'
         }
     }
     getRandomTime() {
@@ -112,85 +106,42 @@ class UserInfo {
         try {
             const options = {
                 //签到任务调用签到接口
-                url: `https://xwyapi.newhope.cn/customer/score/pointsIssuance`,
+                url: `https://crm.nestlechinese.com/openapi/activityservice/api/task/add`,
                 //请求头, 所有接口通用
                 headers: {
                     'Authorization': this.token,
-                    'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.39(0x18002732) NetType/WIFI Language/zh_CN',
-                    'Content-Type': 'application/json;charset=utf8',
+                    'Content-Type': 'application/json'
                 },
-                body: `{"action":"fixedSignIn"}`
+                body: `{"task_id":17}`
             };
             //post方法
             let result = await httpRequest(options);
-            if (result?.code == '0000') {
+            if (result?.errcode == 200) {
                 //obj.error是0代表完成
-                if(result?.body?.ifSignIn==0){
-                    DoubleLog(`【签到结果】：签到成功！获得${result?.integral}积分`);   
-                }else {
-                    DoubleLog(`【签到结果】：今日已签到`)
-                }
-            } else {
-                console.log(result);
+                DoubleLog(`✅打卡成功！获得2雀巢币`);
+            } else if(result?.errcode==201){
+                DoubleLog(`🔶今日已打卡`)
+            }else{
+                DoubleLog(`🔶${result?.errmsg}`)
             }
         } catch (e) {
             console.log(e);
-        }
-    }
-    //抽奖函数
-    async findTurntableTitle() {
-        try {
-            const options = {
-                //签到任务调用签到接口
-                url: `https://xwyapi.newhope.cn/xwh-mall/xwhTurntableLottery/findTurntableTitle`,
-                //请求头, 所有接口通用
-                headers: this.headers,
-            };
-            //post方法
-            let result = await httpRequest(options);
-            if (result?.code == '0000') {
-                //obj.error是0代表完成
-                if(result?.body?.remain==3){
-                    await this.draw();
-                }else {
-                    DoubleLog(`【抽奖结果】：当前无抽奖次数`);
-                }
-            } else {
-                console.log(result);
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    //抽奖
-    async draw() {
-        let signinRequest = {
-            //签到任务调用签到接口
-            url: `https://xwyapi.newhope.cn/xwh-mall/xwhTurntableLottery/draw`,
-            //请求头, 所有接口通用
-            headers: this.headers,
-        };
-        //post方法
-        let result = await httpRequest(signinRequest);
-        if (result?.message == '操作成功') {
-            DoubleLog(`【抽奖结果】：抽奖成功！`);
-        } else {
-            console.log(result)
         }
     }
     //查询积分
     async point() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://xwyapi.newhope.cn/customer/score/detailUser?customerId=${this.customerId}`,
+            url: `https://crm.nestlechinese.com/openapi/pointsservice/api/Points/getuserbalance`,
             //请求头, 所有接口通用
             headers: this.headers,
+            body: '{ }'
         };
         //post方法
         let result = await httpRequest(signinRequest);
-        if (result?.code == '0000') {
+        if (result?.errcode == 200) {
             //obj.error是0代表完成
-            DoubleLog(`【积分】：${result?.body?.currentScore}`);
+            DoubleLog(`✅查询成功:${result?.data}雀巢币`);
         } else {
             console.log(result)
         }
@@ -200,14 +151,15 @@ class UserInfo {
     async check() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://xwyapi.newhope.cn/customer/score/detailUser?customerId=${this.customerId}`,
+            url: `https://crm.nestlechinese.com/openapi/pointsservice/api/Points/getuserbalance`,
             //请求头, 所有接口通用
             headers: this.headers,
+            body: '{}'
         };
         //post方法
         let result = await httpRequest(signinRequest);
-        // console.log(result)
-        if (result?.code == '0000') {
+
+        if (result?.errcode == '200') {
             //obj.error是0代表完成
             console.log(`✅check success!`)
         } else {
@@ -218,16 +170,13 @@ class UserInfo {
 
 }
 
+
 //获取Cookie
 async function getCookie() {
     if ($request && $request.method != 'OPTIONS') {
-        const tokenValue = $request.headers['Authorization'] || $.request.headers['authorization'];
-        const signUrl = $request.url;
-        let ck_info = signUrl.split('=');
-        let signUrlVal = ck_info[1];
-        if (tokenValue&&signUrlVal) {
-            let ck=tokenValue+'#'+signUrlVal
-            $.setdata(ck,ckName);
+        const tokenValue = $request.headers['Qm-User-Token'] || $.request.headers['qm-user-token'] || $.request.headers['QM-USER-TOKEN'];
+        if (tokenValue) {
+            $.setdata(tokenValue,ckName);
             $.msg($.name, "", "获取签到Cookie成功🎉");
         } else {
             $.msg($.name, "", "错误获取签到Cookie失败");
