@@ -1,8 +1,8 @@
 /**************************************
 
-脚本名称：微信小程序 喜茶GO 签到
+脚本名称：微信公众号 农粑粑 签到
 脚本作者：@Sliverkiss
-更新日期：2023.08.31 17:40:11
+更新日期：2023.09.01 17:40:11
 
 脚本兼容：Surge、QuantumultX、Loon、Shadowrocket、Node.js
 只测试过loon和青龙，其它环境请自行尝试
@@ -12,20 +12,14 @@
 *************************
 
 青龙：
-1.登录后抓包 vip.heytea.com域名下的Authorization，填写到heytea_data,多账号用 @ 分割
+1.登录后抓包 sc.gdzfxc.com域名下的session_id，填写到nbb_data,多账号用 @ 分割
 2.可选推送：将bark的key填写到bark_key，不填默认使用青龙自带的推送
 
 Loon: 
-1.将获取Cookie脚本保存到本地
-2.打开小程序->我的->任务中心，若提示获取Cookie成功则可以使用该脚本
-3.关闭获取ck脚本，避免产生不必要的mitm。
+1.登录后抓包 sc.gdzfxc.com域名下的session_id
+2.打开boxjs->我的->数据查看器->在数据键输入nbb_data->VIEW，将session_id填写到数据内容，点击保存,多账号用@分割;
 
-[Script]
-cron "8 8 * * *" script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/heytea.js, timeout=300, tag=喜茶Go
-http-request ^https:\/\/vip.heytea.com\/api\/service-member\/vip\/task\/member script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/heytea.js, timeout=10, tag=喜茶Go获取token
-[MITM]
-hostname =vip.heytea.com
-
+ps:懒得写正则了，自己抓包吧
 
 ------------------------------------------
 1、此脚本仅用于学习研究，不保证其合法性、准确性、有效性，请根据情况自行判断，本人对此不承担任何保证责任。
@@ -41,8 +35,8 @@ hostname =vip.heytea.com
 
 
 // env.js 全局
-const $ = new Env("喜茶Go");
-const ckName = "heytea_data";
+const $ = new Env("农粑粑");
+const ckName = "nbb_data";
 //-------------------- 一般不动变量区域 -------------------------------------
 const Notify = 1;//0为关闭通知,1为打开通知,默认为1
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -94,7 +88,6 @@ class UserInfo {
         this.token = str; 
         this.ckStatus = true
         this.headers = {
-            'Authorization': this.token,
             'Content-Type': 'application/json'
         }
     }
@@ -106,21 +99,18 @@ class UserInfo {
         try {
             const options = {
                 //签到任务调用签到接口
-                url: `https://vip.heytea.com/api/service-member/vip/task/award/114`,
+                url: `https://sc.gdzfxc.com/?s=/ApiSign/signin&aid=1&platform=wx&session_id=${this.token}&pid=0`,
                 //请求头, 所有接口通用
-                headers: {
-                    'Authorization': this.token,
-                    'Content-Type': 'application/json'
-                },
+                headers:this.headers,
                 body: `{}`
             };
             //post方法
             let result = await httpRequest(options);
-            if (result?.code == 0) {
+            if (result?.status == 1) {
             //obj.error是0代表完成
-                DoubleLog(`✅签到成功！获得${result?.data?.score}积分`);
+                DoubleLog(`✅签到成功！获得${result?.scoreadd}积分`);
             } else {
-                DoubleLog(`🔶${result.message}`)
+                DoubleLog(`🔶${result.msg}`)
             }
         } catch (e) {
             console.log(e);
@@ -130,15 +120,16 @@ class UserInfo {
     async point() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://vip.heytea.com/api/service-member/vip/task/member`,
+            url: `https://sc.gdzfxc.com/?s=/ApiMy/scorelog&aid=1&platform=wx&session_id=${this.token}&pid=0`,
             //请求头, 所有接口通用
             headers: this.headers,
+            body:`{}`
         };
         //post方法
         let result = await httpRequest(signinRequest);
-        if (result?.code == 0) {
+        if (result?.status == 1) {
             //obj.error是0代表完成
-            DoubleLog(`✅目前共${result?.data?.usableScore}积分`);
+            DoubleLog(`✅目前共${result?.myscore}积分`);
         } else {
             console.log(result.message)
         }
@@ -148,13 +139,14 @@ class UserInfo {
     async check() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://vip.heytea.com/api/service-member/vip/task/member`,
+            url: `https://sc.gdzfxc.com/?s=/ApiMy/scorelog&aid=1&platform=wx&session_id=${this.token}&pid=0`,
             //请求头, 所有接口通用
             headers: this.headers,
+            body:`{}`
         };
         //post方法
         let result = await httpRequest(signinRequest);
-        if (result?.code == 0) {
+        if (result?.status == 1) {
             //obj.error是0代表完成
             console.log(`✅check success!`)
         } else {
