@@ -1,8 +1,8 @@
 /**************************************
 
-脚本名称：微信小程序 沪上阿姨 签到
+脚本名称：微信小程序 喜茶GO 签到
 脚本作者：@Sliverkiss
-更新日期：2023.08.28 16:40:11
+更新日期：2023.08.31 17:40:11
 
 脚本兼容：Surge、QuantumultX、Loon、Shadowrocket、Node.js
 只测试过loon和青龙，其它环境请自行尝试
@@ -12,19 +12,19 @@
 *************************
 
 青龙：
-1.登录后抓包 webapi.qmai.cn域名下的Qm-User-Token，填写到hsay_data,多账号用 @ 分割
+1.登录后抓包 vip.heytea.com域名下的Authorization，填写到heytea_data,多账号用 @ 分割
 2.可选推送：将bark的key填写到bark_key，不填默认使用青龙自带的推送
 
 Loon: 
 1.将获取Cookie脚本保存到本地
-2.打开小程序->我的，若提示获取Cookie成功则可以使用该脚本
+2.打开小程序->我的->任务中心，若提示获取Cookie成功则可以使用该脚本
 3.关闭获取ck脚本，避免产生不必要的mitm。
 
 [Script]
-cron "30 9 * * *" script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/hsay.js, timeout=300, tag=沪上阿姨
-http-request ^https:\/\/webapi.qmai.cn\/web\/catering\/crm\/points-info script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/hsay.js, timeout=10, tag=沪上阿姨获取token
+cron "8 8 * * *" script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/heytea.js, timeout=300, tag=喜茶Go
+http-request ^https:\/\/vip.heytea.com\/api\/service-member\/vip\/task\/member script-path=https://raw.githubusercontent.com/Sliverkiss/GoodNight/master/Script/heytea.js, timeout=10, tag=喜茶Go获取token
 [MITM]
-hostname =webapi.qmai.cn
+hostname =vip.heytea.com
 
 
 ------------------------------------------
@@ -41,8 +41,8 @@ hostname =webapi.qmai.cn
 
 
 // env.js 全局
-const $ = new Env("雀巢会员俱乐部");
-const ckName = "qc_data";
+const $ = new Env("喜茶Go");
+const ckName = "heytea_data";
 //-------------------- 一般不动变量区域 -------------------------------------
 const Notify = 1;//0为关闭通知,1为打开通知,默认为1
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -106,23 +106,21 @@ class UserInfo {
         try {
             const options = {
                 //签到任务调用签到接口
-                url: `https://crm.nestlechinese.com/openapi/activityservice/api/task/add`,
+                url: `https://vip.heytea.com/api/service-member/vip/task/award/114`,
                 //请求头, 所有接口通用
                 headers: {
                     'Authorization': this.token,
                     'Content-Type': 'application/json'
                 },
-                body: `{"task_id":17}`
+                body: `{}`
             };
             //post方法
             let result = await httpRequest(options);
-            if (result?.errcode == 200) {
-                //obj.error是0代表完成
-                DoubleLog(`✅打卡成功！获得2雀巢币`);
-            } else if(result?.errcode==201){
-                DoubleLog(`🔶今日已打卡`)
-            }else{
-                DoubleLog(`🔶${result?.errmsg}`)
+            if (result?.code == 0) {
+            //obj.error是0代表完成
+                DoubleLog(`✅签到成功！获得${result?.data?.score}积分`);
+            } else {
+                DoubleLog(`🔶${result.message}`)
             }
         } catch (e) {
             console.log(e);
@@ -132,18 +130,17 @@ class UserInfo {
     async point() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://crm.nestlechinese.com/openapi/pointsservice/api/Points/getuserbalance`,
+            url: `https://vip.heytea.com/api/service-member/vip/task/member`,
             //请求头, 所有接口通用
             headers: this.headers,
-            body: '{ }'
         };
         //post方法
         let result = await httpRequest(signinRequest);
-        if (result?.errcode == 200) {
+        if (result?.code == 0) {
             //obj.error是0代表完成
-            DoubleLog(`✅查询成功:${result?.data}雀巢币`);
+            DoubleLog(`✅目前共${result?.data?.usableScore}积分`);
         } else {
-            console.log(result)
+            console.log(result.message)
         }
     }
 
@@ -151,15 +148,13 @@ class UserInfo {
     async check() {
         let signinRequest = {
             //签到任务调用签到接口
-            url: `https://crm.nestlechinese.com/openapi/pointsservice/api/Points/getuserbalance`,
+            url: `https://vip.heytea.com/api/service-member/vip/task/member`,
             //请求头, 所有接口通用
             headers: this.headers,
-            body: '{}'
         };
         //post方法
         let result = await httpRequest(signinRequest);
-
-        if (result?.errcode == '200') {
+        if (result?.code == 0) {
             //obj.error是0代表完成
             console.log(`✅check success!`)
         } else {
@@ -174,7 +169,7 @@ class UserInfo {
 //获取Cookie
 async function getCookie() {
     if ($request && $request.method != 'OPTIONS') {
-        const tokenValue = $request.headers['Qm-User-Token'] || $.request.headers['qm-user-token'] || $.request.headers['QM-USER-TOKEN'];
+        const tokenValue = $request.headers['Authorization'] || $request.headers['authorization'];
         if (tokenValue) {
             $.setdata(tokenValue,ckName);
             $.msg($.name, "", "获取签到Cookie成功🎉");
