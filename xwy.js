@@ -4,6 +4,8 @@
 脚本作者：@Sliverkiss
 更新日期：2023.09.01 17:40:11
 
+2023.09.01 23:37:11 添加视频广告任务 感谢ACE Kelper
+
 脚本兼容：Surge、QuantumultX、Loon、Shadowrocket、Node.js
 只测试过loon和青龙，其它环境请自行尝试
 
@@ -19,8 +21,7 @@ Loon:
 1.登录后抓包 sc.gdzfxc.com域名下的session_id
 2.打开boxjs->我的->数据查看器->在数据键输入nbb_data->VIEW，将session_id填写到数据内容，点击保存,多账号用@分割;
 
-ps:懒得写正则了，自己抓包吧
-
+⚠️【免责声明】
 ------------------------------------------
 1、此脚本仅用于学习研究，不保证其合法性、准确性、有效性，请根据情况自行判断，本人对此不承担任何保证责任。
 2、由于此脚本仅用于学习研究，您必须在下载后 24 小时内将所有内容从您的计算机或手机或任何存储设备中完全删除，若违反规定引起任何事件本人对此均不负责。
@@ -72,6 +73,8 @@ async function main() {
             console.log(`随机延迟${user.getRandomTime()}ms`);
             taskall.push(await user.signin());
             await $.wait(user.getRandomTime());
+            taskall.push(await user.videoList());
+            await $.wait(user.getRandomTime());
             taskall.push(await user.point());
             await $.wait(user.getRandomTime());
         } else {
@@ -88,7 +91,8 @@ class UserInfo {
         this.token = str; 
         this.ckStatus = true
         this.headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'User-Agent':'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.34(0x18002234) NetType/WIFI Language/zh_CN'
         }
     }
     getRandomTime() {
@@ -112,6 +116,44 @@ class UserInfo {
             } else {
                 DoubleLog(`🔶${result.msg}`)
             }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    //观看视频
+    async videoList() {
+        try {
+            $.index=1;
+            do{
+                await this.videoRenwu();
+            }while ($.index<5)
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    //观看视频
+    async videoRenwu() {
+        try {
+            const options = {
+                //签到任务调用签到接口
+                url: `https://sc.gdzfxc.com/?s=/ApiSign/videoRenwu&aid=1&platform=wx&session_id=${this.token}&pid=0`,
+                //请求头, 所有接口通用
+                headers:{
+                  'Content-Type': 'application/json',
+                  'User-Agent':'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.34(0x18002234) NetType/WIFI Language/zh_CN'
+                },
+                body: `{"renwu_id":"${$.index++}"}`
+            };
+            //post方法
+            let result = await httpRequest(options);
+            if (result?.status == 1) {
+            //obj.error是0代表完成
+                DoubleLog(`✅${result?.msg},获得${result?.scoreadd}积分`);
+             } else if (result?.status == 2) {
+                 DoubleLog(`🔶视频${$.index-1}今日已观看`);
+             }else{
+                console.log(result)
+             }
         } catch (e) {
             console.log(e);
         }
