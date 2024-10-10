@@ -10,4 +10,8 @@ http-response ^https:\/\/api-xh\.hsyuntai\.com\/hs-xh-single-web\/r\/173\/20002\
 [MITM]
 hostname = api-xh.hsyuntai.com
 */
-$done({ body: JSON.stringify($response.body.replace(/"resNo":\s*\d+/g, '"resNo": 1')) });
+var bjxh = JSON.parse($response.body);
+
+bjxh.data.forEach(e => e.resNo = 1);
+
+$done({ body: JSON.stringify(bjxh)});
